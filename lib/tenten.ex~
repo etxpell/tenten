@@ -1,0 +1,93 @@
+defmodule Tenten do
+  def hello do
+    :world
+  end
+end
+
+defmodule Board do
+  def create() do
+    ps = all_points()
+    Enum.reduce(ps, %{}, fn(k, m) -> Map.put(m, k, true) end)
+  end
+
+  def is_empty?(b, x, y), do: is_empty?(b, mk_point(x, y))
+  def is_empty?(b, p), do: Map.has_key?(b, p)
+  
+  def place(b, obj) when is_list(obj) do
+    Enum.reduce(obj, b, fn(p, b) -> place(b, p) end)
+  end
+  def place(b, p) do
+    Map.delete(b, p)
+  end
+  
+  def can_place(b, obj), do: Enum.all?(obj, fn(p) -> is_empty?(b, p) end)
+  
+  def can_place_at(b, obj, p), do: can_place(b, absolute(obj, p))
+  def can_place_at(b, obj, x, y), do: can_place_at(b, obj, mk_point(x, y))
+  
+  def absolute(ps, {x, y}), do: Enum.map(ps, fn({x1, y1}) -> {x1 + x, y1 + y} end)
+  
+  def value(b) do
+    ps = Map.keys(b)
+    count_points_where_obj_is_placeable(b, ps, square()) +
+    count_points_where_obj_is_placeable(b, ps, vertical_five()) +
+    count_points_where_obj_is_placeable(b, ps, horizontal_five())
+  end
+  
+  def count_points_where_obj_is_placeable(b, points, obj) do
+    length(Enum.filter(points, fn(p) -> can_place_at(b, obj, p) end))
+  end
+  
+  def all_points() do
+    for x <- cols(),
+      y <- rows(),
+      do: mk_point(x, y)
+  end
+
+  defp rows(), do: 0..9
+  defp cols(), do: 0..9
+  defp mk_point(x, y), do: {x, y}
+
+  # -----------------
+  # predefined objects
+  def square() do
+    for x <- 0..2,
+      y <- 0..2,
+      do: mk_point(x, y)
+  end
+
+  def vertical_five() do
+    for y <- 0..5,
+      do: mk_point(0, y)
+  end
+
+  def horizontal_five() do
+    for x <- 0..5,
+      do: mk_point(x, 0)
+  end
+
+  # -----------------
+  # print stuff
+
+  def print(b) do
+    Enum.map(rows(), fn(r) -> print_row(b, r) end)
+  end
+
+  def print_row(b, y) do
+    IO.puts row_to_string(b, y)
+  end
+  
+  def row_to_string(b, y) do
+    Enum.map(cols(), fn(x) -> point_char(b, mk_point(x, y)) end)
+  end
+
+  defp point_char(b, p) do
+    if is_empty?(b, p) do
+      ?.
+    else
+      ?X
+    end
+  end
+
+end
+

@@ -1,0 +1,8 @@
+defmodule Game do
+
+  def start() do
+    GenServer.start_link(__MODULE, [], __MODULE__)
+  end
+
+
+end

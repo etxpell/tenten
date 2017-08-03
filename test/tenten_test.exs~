@@ -1,0 +1,84 @@
+defmodule TentenTest do
+  use ExUnit.Case
+
+  test "can create empty board" do
+    res = Board.create
+    assert true == is_map(res)
+  end
+
+  test "can check for empty point" do
+    b = Board.create
+    assert true == Board.is_empty?(b, 0, 0)
+  end
+
+  test "can print empty board" do
+    import ExUnit.CaptureIO
+
+    res = capture_io(fn() -> Board.create |> Board.print end)
+    expected = """
+..........
+..........
+..........
+..........
+..........
+..........
+..........
+..........
+..........
+..........
+    """
+    assert expected == res
+  end
+
+  test "can place a single point" do
+    b = Board.create |>
+      Board.place([{0, 0}])
+    
+    assert false == Board.is_empty?(b, 0, 0)
+    assert true == Board.is_empty?(b, 0, 1)
+  end
+
+  test "can place two points" do
+    b = Board.create |>
+      Board.place([{0, 0}, {0, 1}])
+    
+    assert false == Board.is_empty?(b, 0, 0)
+    assert false == Board.is_empty?(b, 0, 1)
+    assert true == Board.is_empty?(b, 0, 2)
+  end
+
+  test "can check a single point for placement" do
+    b = Board.create |>
+      Board.place([{0, 0}])
+    assert false == Board.can_place(b, [{0, 0}])
+    assert true == Board.can_place(b, [{0, 1}])
+  end
+
+  test "can check a two points for placement" do
+    b = Board.create |>
+      Board.place([{0, 0}])
+    assert false == Board.can_place(b, [{0, 0}, {0,1}])
+    assert true == Board.can_place(b, [{0, 1}, {0, 2}])
+  end
+
+  test "can check relative point for placement" do
+    b = Board.create |>
+      Board.place([{0, 0}])
+    assert false == Board.can_place_at(b, [{0, 0}], 0, 0)
+    assert true == Board.can_place_at(b, [{0, 0}], 0, 1)
+  end
+
+  test "value of empty board" do
+    res = Board.create |>
+      Board.value
+    assert 164 == res
+  end
+  
+  test "value of board with one point taken" do
+    res = Board.create |>
+      Board.place([{0, 0}]) |>
+      Board.value
+    assert 161 == res
+  end
+  
+end

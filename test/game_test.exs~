@@ -1,0 +1,10 @@
+defmodule GameTest do
+  use ExUnit.Case
+
+  test "start a fresh game" do
+    g = Game.start()
+    assert 0 Game.score(g)
+    assert [] Game.moves(g)
+  end
+
+  end
